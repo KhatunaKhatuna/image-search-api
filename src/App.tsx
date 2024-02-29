@@ -1,10 +1,15 @@
-import { useState } from "react";
 import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import History from "./pages/History";
 
 function App() {
   return (
     <>
-      <h1>Hello Sweeft</h1>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="history" element={<History />} />
+      </Routes>
     </>
   );
 }
