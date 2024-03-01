@@ -1,16 +1,42 @@
 .container {
   max-width: 1220px;
   margin: 0 auto;
+  padding: 0 30px;
 }
-.header {
-  background-color: #2b3743;
-}
+
+/* Navigation */
 .nav {
+  background-color: #2b3743;
+  padding: 20px 0;
+}
+.manu {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.nav ul {
-  padding: 20px;
+.manu ul {
+  display: flex;
+  gap: 40px;
   font-size: 22px;
+}
+
+/* Search */
+
+.search {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 40px 30px;
+}
+.search input {
+  background-color: #2b3743;
+  width: 100%;
+  max-width: 450px;
+  color: #fff;
+  border: none;
+  border-radius: 10rem;
+  padding: 10px 40px;
+  font-weight: 700;
+  font-size: 1.6rem;
+  cursor: pointer;
 }

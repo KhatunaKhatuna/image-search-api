@@ -6,22 +6,34 @@ export default function Header() {
 
   return (
     <header className="header">
-      <nav className="nav container">
-        <img style={{ color: "#fff" }} className="logo" src={logo} alt="logo" />
-        <ul>
-          <li>
-            {pathname === "/" ? (
-              <Link style={{ color: "#fff" }} to="history">
-                History
-              </Link>
-            ) : (
+      <div className="nav">
+        <nav className="manu container">
+          <Link to="/">
+            <img
+              style={{ color: "#fff" }}
+              className="logo"
+              src={logo}
+              alt="logo"
+            />
+          </Link>
+
+          <ul>
+            <li>
               <Link style={{ color: "#fff" }} to="/">
                 Home
               </Link>
-            )}
-          </li>
-        </ul>
-      </nav>
+            </li>
+            <li>
+              <Link style={{ color: "#fff" }} to="history">
+                History
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div className="search">
+        <input type="search" placeholder="Search ..." />
+      </div>
     </header>
   );
 }
