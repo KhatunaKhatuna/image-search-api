@@ -40,3 +40,16 @@
   font-size: 1.6rem;
   cursor: pointer;
 }
+
+/* Loader */
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader-img {
+  width: 6rem;
+  height: 6rem;
+}
