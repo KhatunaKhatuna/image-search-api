@@ -39,13 +39,15 @@ export const getSingleImage = async (imageId: string) => {
   }
 };
 
-export const getSearchedImage = async (query: string) => {
+export const getSearchedImage = async (query: string, page: number) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/search/photos?page=1&query=${query}`
+      `${BASE_URL}/search/photos?query=${query}&page=${page}&per_page=20&client_id=${
+        import.meta.env.VITE_API_KEY
+      }`
     );
 
-    const data = await response.data;
+    const data = await response.data.results;
     const fetchData: Image[] = data.map((image: Image) => ({
       id: image.id,
       likes: image.likes,

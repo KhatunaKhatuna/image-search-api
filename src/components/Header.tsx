@@ -31,11 +31,12 @@ export default function Header() {
           </ul>
         </nav>
       </div>
-      {pathname === "/" && (
+
+      {/* {pathname === "/" && (
         <div className="search">
           <input type="search" placeholder="Search ..." />
         </div>
-      )}
+      )} */}
     </header>
   );
 }
