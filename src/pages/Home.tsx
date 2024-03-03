@@ -6,12 +6,14 @@ import { getPopularImages } from "../api/data";
 import { GalleryItem } from "../components/GalleryItem";
 
 import { getSearchedImage } from "../api/data";
+
 export default function Home() {
   const [images, setImages] = useState<Image[]>([]);
   const [searchedImage, setSearchedImage] = useState<Image[]>([]);
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<string>("");
+  const [selectedImage, setSelectedImage] = useState<any>(null);
   const abortController = new AbortController();
 
   // Gallery data
@@ -97,14 +99,86 @@ export default function Home() {
     <>
       {error && <p>{error}</p>}
       <Search handleChange={handleChange} query={query} />
-      <Gallery image={images} searchedImage={searchedImage}>
-        {query.length >= 3
-          ? searchedImage.map((image: Image) => (
-              <GalleryItem key={image.id} image={image} />
-            ))
-          : images.map((image: Image) => (
-              <GalleryItem key={image.id} image={image} />
+      <Gallery>
+        {query.length >= 3 ? (
+          <>
+            {searchedImage.map((image: Image) => (
+              <div
+                className="image-container "
+                key={image.id}
+                onClick={() => setSelectedImage(image)}
+              >
+                <GalleryItem key={image.id} image={image} />
+              </div>
             ))}
+
+            <div
+              className="popup-modal"
+              onClick={() => setSelectedImage(null)}
+              style={{ display: selectedImage ? "block" : "none" }}
+            >
+              <span
+                className="popup-cancel"
+                onClick={() => setSelectedImage(null)}
+              >
+                &times;
+              </span>
+              <div className="popup-modal-image-container">
+                <div className="image-wraper">
+                  <img
+                    src={selectedImage?.urls.full}
+                    className="popup-modal-image"
+                  />
+                </div>
+
+                <div className="popap-modal-statistics">
+                  <span>likes:</span>
+                  <span>views:</span>
+                  <span>dawnloads:</span>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {images.map((image: Image) => (
+              <div
+                className="image-container "
+                key={image.id}
+                onClick={() => setSelectedImage(image)}
+              >
+                <GalleryItem key={image.id} image={image} />
+              </div>
+            ))}
+
+            <div
+              className="popup-modal"
+              onClick={() => setSelectedImage(null)}
+              style={{ display: selectedImage ? "block" : "none" }}
+            >
+              <span
+                className="popup-cancel"
+                onClick={() => setSelectedImage(null)}
+              >
+                &times;
+              </span>
+              <div className="popup-modal-image-container">
+                <div className="image-wraper">
+                  <img
+                    src={selectedImage?.urls.full}
+                    className="popup-modal-image"
+                  />
+                </div>
+
+                <div className="popap-modal-statistics">
+                  <span>likes:</span>
+                  <span>views:</span>
+                  <span>dawnloads:</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </Gallery>
     </>
   );
