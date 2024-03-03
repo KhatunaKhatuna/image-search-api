@@ -2,9 +2,7 @@
 
 # Photo Gallery
 
-### in .env file replase 'Access Key' with your key
-
-This project was bootstrapped with [npm create vite@latest ]
+This project was bootstrapped with npm create vite@latest
 
 ## Available Scripts
 
