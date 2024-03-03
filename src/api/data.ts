@@ -57,6 +57,7 @@ export const getSearchedImage = async (query: string, page: number) => {
         small: image.urls?.small,
       },
     }));
+
     return fetchData;
   } catch (error) {
     throw new Error("Error while getting searched image");
@@ -74,7 +75,7 @@ export const getStatistics = async (id: string) => {
     const fetchData: Image[] = data.map((image: Image) => ({
       id: image.id,
       likes: image.likes,
-      slug: image.slug,
+      slug: image?.slug,
       downloads: {
         total: image.downloads?.total,
       },
