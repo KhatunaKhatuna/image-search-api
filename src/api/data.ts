@@ -67,23 +67,14 @@ export const getSearchedImage = async (query: string, page: number) => {
 export const getStatistics = async (id: string) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/photos/${id}/statistics&client_id=${
+      `${BASE_URL}/photos/${id}/statistics?client_id=${
         import.meta.env.VITE_API_KEY
       }`
     );
-    const data = response.data;
-    const fetchData: Image[] = data.map((image: Image) => ({
-      id: image.id,
-      likes: image.likes,
-      slug: image?.slug,
-      downloads: {
-        total: image.downloads?.total,
-      },
-      views: {
-        total: image.views?.total,
-      },
-    }));
-    return fetchData;
+
+    const data = await response.data;
+
+    return data;
   } catch (error) {
     throw new Error("Error while getting images");
   }

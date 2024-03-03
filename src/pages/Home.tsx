@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Gallery } from "../components/Gallery";
 import Search from "../components/Search";
-
-import { getPopularImages } from "../api/data";
-import { GalleryItem } from "../components/GalleryItem";
-
 import { getSearchedImage } from "../api/data";
+import { getPopularImages } from "../api/data";
+import { getStatistics } from "../api/data";
+import { GalleryItem } from "../components/GalleryItem";
+import Loader from "../components/Loader";
 
 export default function Home() {
   const [images, setImages] = useState<Image[]>([]);
@@ -15,7 +15,11 @@ export default function Home() {
   const [query, setQuery] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const abortController = new AbortController();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [imageStatistic, useImageStatistic] = useState<any>({});
+
+  console.log(query);
   // Gallery data
   // Get Searched Images
   useEffect(() => {
@@ -34,6 +38,7 @@ export default function Home() {
             )
           );
         }
+        setIsLoading(false);
       } catch (err) {
         setError("Failed to fetch images");
         console.error(err);
@@ -49,8 +54,10 @@ export default function Home() {
       abortController.abort();
     };
   }, [query, page]);
+
   //  Get Popular images
   useEffect(() => {
+    setIsLoading(true);
     const fetchPopularImages = async () => {
       try {
         const fetchedImages = await getPopularImages(page);
@@ -74,6 +81,20 @@ export default function Home() {
       abortController.abort();
     };
   }, [page]);
+  // Get Statistics
+
+  /*
+  useEffect(() => {
+    const fetchStatistic = async () => {
+      const fetchedStatistic = await getStatistics(id);
+      console.log(fetchedStatistic);
+      useImageStatistic(fetchedStatistic);
+    };
+
+    fetchStatistic();
+  }, [id]);
+*/
+
   // Infinit scrole
   useEffect(() => {
     const handleScroll = () => {
@@ -94,7 +115,7 @@ export default function Home() {
     e.preventDefault();
     setQuery(e.target.value);
   }
-  console.log(query);
+
   return (
     <>
       {error && <p>{error}</p>}
@@ -180,6 +201,7 @@ export default function Home() {
           </>
         )}
       </Gallery>
+      {isLoading && <Loader />}
     </>
   );
 }
