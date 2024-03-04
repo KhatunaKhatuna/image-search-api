@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Gallery } from "../components/Gallery";
 import Search from "../components/Search";
 import { getSearchedImage } from "../api/data";
@@ -6,6 +6,7 @@ import { getPopularImages } from "../api/data";
 import { getStatistics } from "../api/data";
 import { GalleryItem } from "../components/GalleryItem";
 import Loader from "../components/Loader";
+import { PopUp } from "../components/PopUp";
 
 export default function Home() {
   const [images, setImages] = useState<Image[]>([]);
@@ -17,9 +18,8 @@ export default function Home() {
   const abortController = new AbortController();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [imageStatistic, useImageStatistic] = useState<any>({});
+  const [imageStatistic, useImageStatistic] = useState<any>(null);
 
-  console.log(query);
   // Gallery data
   // Get Searched Images
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function Home() {
 
     const timeoutForSearch = setTimeout(() => {
       fetchSearchedImages();
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timeoutForSearch);
@@ -81,19 +81,31 @@ export default function Home() {
       abortController.abort();
     };
   }, [page]);
+
   // Get Statistics
-
-  /*
   useEffect(() => {
-    const fetchStatistic = async () => {
-      const fetchedStatistic = await getStatistics(id);
-      console.log(fetchedStatistic);
-      useImageStatistic(fetchedStatistic);
-    };
+    if (selectedImage) {
+      const id = selectedImage.id;
 
-    fetchStatistic();
-  }, [id]);
-*/
+      const fetchStatistic = async () => {
+        try {
+          const fetchedStatistic = await getStatistics(id);
+          useImageStatistic(fetchedStatistic);
+        } catch (err) {
+          setError("Failed to fetch images");
+          console.error(err);
+        }
+      };
+      const timeoutForPstatistic = setTimeout(() => {
+        fetchStatistic();
+      }, 1000);
+
+      return () => {
+        clearTimeout(timeoutForPstatistic);
+        abortController.abort();
+      };
+    }
+  }, [selectedImage]);
 
   // Infinit scrole
   useEffect(() => {
@@ -102,8 +114,13 @@ export default function Home() {
       const scrollTop = document.documentElement.scrollTop;
       const windowHeight = window.innerHeight;
 
-      if (windowHeight + scrollTop === scrollHeight) {
+      const threshold = 300;
+
+      if (scrollHeight - (scrollTop + windowHeight) < threshold) {
         setPage((prevPage) => prevPage + 1);
+      }
+      if (scrollTop === 0) {
+        setPage(1);
       }
     };
 
@@ -111,6 +128,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Function sets in qvery value
   function handleChange(e: any) {
     e.preventDefault();
     setQuery(e.target.value);
@@ -120,6 +138,7 @@ export default function Home() {
     <>
       {error && <p>{error}</p>}
       <Search handleChange={handleChange} query={query} />
+
       <Gallery>
         {query.length >= 3 ? (
           <>
@@ -133,32 +152,11 @@ export default function Home() {
               </div>
             ))}
 
-            <div
-              className="popup-modal"
-              onClick={() => setSelectedImage(null)}
-              style={{ display: selectedImage ? "block" : "none" }}
-            >
-              <span
-                className="popup-cancel"
-                onClick={() => setSelectedImage(null)}
-              >
-                &times;
-              </span>
-              <div className="popup-modal-image-container">
-                <div className="image-wraper">
-                  <img
-                    src={selectedImage?.urls.full}
-                    className="popup-modal-image"
-                  />
-                </div>
-
-                <div className="popap-modal-statistics">
-                  <span>likes:</span>
-                  <span>views:</span>
-                  <span>dawnloads:</span>
-                </div>
-              </div>
-            </div>
+            <PopUp
+              setSelectedImage={setSelectedImage}
+              selectedImage={selectedImage}
+              imageStatistic={imageStatistic}
+            />
           </>
         ) : (
           <>
@@ -171,33 +169,11 @@ export default function Home() {
                 <GalleryItem key={image.id} image={image} />
               </div>
             ))}
-
-            <div
-              className="popup-modal"
-              onClick={() => setSelectedImage(null)}
-              style={{ display: selectedImage ? "block" : "none" }}
-            >
-              <span
-                className="popup-cancel"
-                onClick={() => setSelectedImage(null)}
-              >
-                &times;
-              </span>
-              <div className="popup-modal-image-container">
-                <div className="image-wraper">
-                  <img
-                    src={selectedImage?.urls.full}
-                    className="popup-modal-image"
-                  />
-                </div>
-
-                <div className="popap-modal-statistics">
-                  <span>likes:</span>
-                  <span>views:</span>
-                  <span>dawnloads:</span>
-                </div>
-              </div>
-            </div>
+            <PopUp
+              setSelectedImage={setSelectedImage}
+              selectedImage={selectedImage}
+              imageStatistic={imageStatistic}
+            />
           </>
         )}
       </Gallery>
