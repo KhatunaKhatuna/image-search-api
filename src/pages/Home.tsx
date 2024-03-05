@@ -67,6 +67,7 @@ export default function Home() {
               index === self.findIndex((t) => t.id === image.id)
           )
         );
+        setIsLoading(false);
       } catch (err) {
         setError("Failed to fetch images");
         console.error(err);
@@ -110,20 +111,24 @@ export default function Home() {
   // Infinit scrole
   useEffect(() => {
     const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight;
+      // const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
+      // const windowHeight = window.innerHeight;
 
-      const threshold = 300;
-
-      if (scrollHeight - (scrollTop + windowHeight) < threshold) {
+      // if (windowHeight + scrollTop >= scrollHeight - 1) {
+      //   setPage((prevPage) => prevPage + 1);
+      // }
+      if (
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight
+      ) {
         setPage((prevPage) => prevPage + 1);
       }
+
       if (scrollTop === 0) {
         setPage(1);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
