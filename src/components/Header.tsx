@@ -1,12 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import { useRef } from "react";
-
-export default function Header() {
+import { useNavigate } from "react-router-dom";
+export default function Header({ queryList }: any) {
   const ref = useRef(null);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
+  const navigate = useNavigate();
+  const handleNavigation = () => {
+    navigate("/about", {
+      state: {
+        queryList: queryList,
+      },
+    });
+  };
+  const handleClick = () => {
+    scrollToTop();
+    handleNavigation();
   };
   return (
     <header className="header" ref={ref}>
@@ -30,7 +42,7 @@ export default function Header() {
             </li>
             <li>
               <Link
-                onClick={scrollToTop}
+                onClick={handleClick}
                 style={{ color: "#fff" }}
                 to="history"
               >

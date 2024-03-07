@@ -8,12 +8,17 @@ import { GalleryItem } from "../components/GalleryItem";
 import Loader from "../components/Loader";
 import { PopUp } from "../components/PopUp";
 
-export default function Home() {
+export default function Home({
+  queryList,
+  setQuery,
+  query,
+  handleChange,
+}: any) {
   const [images, setImages] = useState<Image[]>([]);
   const [searchedImage, setSearchedImage] = useState<Image[]>([]);
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState<string>("");
+
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const abortController = new AbortController();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -134,15 +139,13 @@ export default function Home() {
   }, []);
 
   // Function sets in qvery value
-  function handleChange(e: any) {
-    e.preventDefault();
-    setQuery(e.target.value);
-  }
+
+  // Effect to add item when debouncedInputValue changes and is not empty
 
   return (
     <>
       {error && <p>{error}</p>}
-      <Search handleChange={handleChange} query={query} />
+      <Search handleChange={handleChange} query={query} setQuery={setQuery} />
 
       <Gallery>
         {query.length >= 3 ? (

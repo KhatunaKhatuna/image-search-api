@@ -2,7 +2,7 @@ import { useState } from "react";
 
 useState;
 
-export default function Search({ handleChange, query }: any) {
+export default function Search({ handleChange, query, setQuery }: any) {
   return (
     <div className="search">
       <input
@@ -10,6 +10,7 @@ export default function Search({ handleChange, query }: any) {
         onChange={handleChange}
         type="search"
         placeholder="Search ..."
+        onClick={() => setQuery("")}
       />
     </div>
   );
