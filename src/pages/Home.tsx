@@ -1,92 +1,55 @@
-import { useEffect, useState } from "react";
-import { Gallery } from "../components/Gallery";
-import Search from "../components/Search";
-import { getSearchedImage } from "../api/data";
-import { getPopularImages } from "../api/data";
-import { getStatistics } from "../api/data";
-import { GalleryItem } from "../components/GalleryItem";
 import Loader from "../components/Loader";
-import { PopUp } from "../components/PopUp";
+import { useEffect, useState } from "react";
+import Search from "../components/Search";
+import { getPopularImages, getSearchedImage, getStatistics } from "../api/data";
+import useDebounce from "../hooks/useDebounce";
+import InfiniteScroll from "../components/InfiniteScroll";
+import Gallery from "../components/Gallery";
+import PopUp from "../components/PopUp";
 
-export default function Home({
-  queryList,
-  setQuery,
-  query,
-  handleChange,
-}: any) {
-  const [images, setImages] = useState<Image[]>([]);
-  const [searchedImage, setSearchedImage] = useState<Image[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [error, setError] = useState<string | null>(null);
-
+const Home = () => {
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
   const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [imageStatistic, setImageStatistic] = useState(null);
   const abortController = new AbortController();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [imageStatistic, useImageStatistic] = useState<any>(null);
-
-  // Gallery data
-  // Get Searched Images
-  useEffect(() => {
-    if (page === 1) {
-      setSearchedImage([]);
-    }
-
-    const fetchSearchedImages = async () => {
-      try {
-        if (query.length >= 3) {
-          const fetchedImages = await getSearchedImage(query, page);
-          setSearchedImage(() =>
-            [...searchedImage, ...fetchedImages].filter(
-              (image, index, self) =>
-                index === self.findIndex((t) => t.id === image.id)
-            )
-          );
-        }
-        setIsLoading(false);
-      } catch (err) {
-        setError("Failed to fetch images");
-        console.error(err);
-      }
-    };
-
-    const timeoutForSearch = setTimeout(() => {
-      fetchSearchedImages();
-    }, 500);
-
-    return () => {
-      clearTimeout(timeoutForSearch);
-      abortController.abort();
-    };
-  }, [query, page]);
-
-  //  Get Popular images
   useEffect(() => {
     setIsLoading(true);
-    const fetchPopularImages = async () => {
+    const fetchImages = async () => {
       try {
-        const fetchedImages = await getPopularImages(page);
-        setImages(() =>
-          [...images, ...fetchedImages].filter(
-            (image, index, self) =>
-              index === self.findIndex((t) => t.id === image.id)
-          )
+        let fetchedImages: any;
+        if (debouncedSearchQuery) {
+          fetchedImages = await getSearchedImage(debouncedSearchQuery, page);
+        } else {
+          fetchedImages = await getPopularImages(page);
+        }
+        setImages((prevImages) =>
+          page === 1
+            ? fetchedImages
+            : [...prevImages, ...fetchedImages].filter(
+                (image, index, self) =>
+                  index === self.findIndex((t) => t.id === image.id)
+              )
         );
+        if (fetchedImages.length === 0 || fetchedImages.length < 20) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+      } catch (error: any) {
+        console.error("Error fetching images:", error.message);
+      } finally {
         setIsLoading(false);
-      } catch (err) {
-        setError("Failed to fetch images");
-        console.error(err);
       }
     };
 
-    const timeoutForPopular = setTimeout(() => {
-      fetchPopularImages();
-    }, 500);
-    return () => {
-      clearTimeout(timeoutForPopular);
-      abortController.abort();
-    };
-  }, [page]);
+    fetchImages();
+  }, [page, debouncedSearchQuery]);
 
   // Get Statistics
   useEffect(() => {
@@ -96,10 +59,9 @@ export default function Home({
       const fetchStatistic = async () => {
         try {
           const fetchedStatistic = await getStatistics(id);
-          useImageStatistic(fetchedStatistic);
-        } catch (err) {
-          setError("Failed to fetch images");
-          console.error(err);
+          setImageStatistic(fetchedStatistic);
+        } catch (error: any) {
+          console.error("Error fetching images:", error.message);
         }
       };
       const timeoutForPstatistic = setTimeout(() => {
@@ -113,79 +75,35 @@ export default function Home({
     }
   }, [selectedImage]);
 
-  // Infinit scrole
-  useEffect(() => {
-    const handleScroll = () => {
-      // const scrollHeight = document.documentElement.scrollHeight;
-      const scrollTop = document.documentElement.scrollTop;
-      // const windowHeight = window.innerHeight;
+  const loadMoreImages = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
-      // if (windowHeight + scrollTop >= scrollHeight - 1) {
-      //   setPage((prevPage) => prevPage + 1);
-      // }
-      if (
-        window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight
-      ) {
-        setPage((prevPage) => prevPage + 1);
-      }
-
-      if (scrollTop === 0) {
-        setPage(1);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Function sets in qvery value
-
-  // Effect to add item when debouncedInputValue changes and is not empty
+  const handleSearchInputChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1); // Reset to first page for new search
+    setImages([]); // Optionally clear images for new search
+  };
 
   return (
-    <>
-      {error && <p>{error}</p>}
-      <Search handleChange={handleChange} query={query} setQuery={setQuery} />
+    <InfiniteScroll
+      loadMore={loadMoreImages}
+      isLoading={isLoading}
+      hasMore={hasMore}
+    >
+      <section style={{}}>
+        <Search onInputChange={handleSearchInputChange} />
 
-      <Gallery>
-        {query.length >= 3 ? (
-          <>
-            {searchedImage.map((image: Image) => (
-              <div
-                className="image-container "
-                key={image.id}
-                onClick={() => setSelectedImage(image)}
-              >
-                <GalleryItem key={image.id} image={image} />
-              </div>
-            ))}
-
-            <PopUp
-              setSelectedImage={setSelectedImage}
-              selectedImage={selectedImage}
-              imageStatistic={imageStatistic}
-            />
-          </>
-        ) : (
-          <>
-            {images.map((image: Image) => (
-              <div
-                className="image-container "
-                key={image.id}
-                onClick={() => setSelectedImage(image)}
-              >
-                <GalleryItem key={image.id} image={image} />
-              </div>
-            ))}
-            <PopUp
-              setSelectedImage={setSelectedImage}
-              selectedImage={selectedImage}
-              imageStatistic={imageStatistic}
-            />
-          </>
-        )}
-      </Gallery>
-      {isLoading && <Loader />}
-    </>
+        <Gallery images={images} setSelectedImage={setSelectedImage} />
+        <PopUp
+          setSelectedImage={setSelectedImage}
+          selectedImage={selectedImage}
+          imageStatistic={imageStatistic}
+        />
+        {isLoading && <Loader />}
+      </section>
+    </InfiniteScroll>
   );
-}
+};
+
+export default Home;

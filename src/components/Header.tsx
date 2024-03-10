@@ -1,27 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-export default function Header({ queryList }: any) {
-  const ref = useRef(null);
 
+const Header = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   };
-  const navigate = useNavigate();
-  const handleNavigation = () => {
-    navigate("/about", {
-      state: {
-        queryList: queryList,
-      },
-    });
-  };
-  const handleClick = () => {
-    scrollToTop();
-    handleNavigation();
-  };
   return (
-    <header className="header" ref={ref}>
+    <header className="header">
       <div className="nav">
         <nav className="manu container">
           <Link to="/">
@@ -42,7 +27,7 @@ export default function Header({ queryList }: any) {
             </li>
             <li>
               <Link
-                onClick={handleClick}
+                onClick={scrollToTop}
                 style={{ color: "#fff" }}
                 to="history"
               >
@@ -54,4 +39,6 @@ export default function Header({ queryList }: any) {
       </div>
     </header>
   );
-}
+};
+
+export default Header;

@@ -20,6 +20,7 @@ export const getPopularImages = async (page: number) => {
         small: image.urls?.small,
       },
     }));
+
     return fetchData;
   } catch (error) {
     throw new Error("Error while getting images");

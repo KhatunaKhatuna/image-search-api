@@ -2,7 +2,7 @@ import download from "../assets/download.svg";
 import like from "../assets/like.svg";
 import views from "../assets/view.svg";
 
-export function PopUp({
+export default function PopUp({
   setSelectedImage,
   selectedImage,
   imageStatistic,
